@@ -52,7 +52,7 @@ file_dock:
   floatable: true
 thre_dock:
   show: true
-  closable: true
+  closable: false
   movable: true
   floatable: true
 # label_dialog

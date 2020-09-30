@@ -1529,17 +1529,18 @@ class MainWindow(QtWidgets.QMainWindow):
             self.otherData = self.labelFile.otherData
         else:
             self.imageData = LabelFile.load_image_file(filename)
-            self.image_cv = None
-            self.image_cv = cv2.imread(filename)
 
-            try:
-                self.image_cv = cv2.imread(filename)
-            except IOError:
-                logger.error("Failed opening image file: {}".format(filename))
-                return
             if self.imageData:
                 self.imagePath = filename
             self.labelFile = None
+        self.image_cv = None
+        self.image_cv = cv2.imread(filename)
+
+        try:
+            self.image_cv = cv2.imread(filename)
+        except IOError:
+            logger.error("Failed opening image file: {}".format(filename))
+            return
         image = QtGui.QImage.fromData(self.imageData)
 
         if image.isNull():
@@ -1749,15 +1750,19 @@ class MainWindow(QtWidgets.QMainWindow):
     def openFile(self, _value=False):
         if not self.mayContinue():
             return
-        path = osp.dirname(str(self.filename)) if self.filename else "."
-        formats = [
-            "*.{}".format(fmt.data().decode())
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
-        filters = self.tr("Image & Label files (%s)") % " ".join(
-            formats + ["*%s" % LabelFile.suffix]
-        )
-        self.loadFile(r"C:\Users\Nathan\Documents\books\data\TEM\2\(520-30-180-1)ImageSerial.75.bmp")
+        path = osp.dirname(str(self.filename)) if self.filename else '.'
+        formats = ['*.{}'.format(fmt.data().decode())
+                   for fmt in QtGui.QImageReader.supportedImageFormats()]
+        filters = "Image & Label files (%s)" % ' '.join(
+            formats + ['*%s' % LabelFile.suffix])
+        filename = QtWidgets.QFileDialog.getOpenFileName(
+            self, '%s - Choose Image or Label file' % __appname__,
+            path, filters)
+        if QT5:
+            filename, _ = filename
+        filename = str(filename)
+        if filename:
+            self.loadFile(filename)
         self.canvas.update()
 
 
